@@ -12,6 +12,10 @@
 
 struct frontend {
 midend *me;
+SDL_Window *window;
+SDL_Renderer *renderer;
+SDL_Surface *sdl_surface;
+
 cairo_t *cr;
 cairo_surface_t *image;
 };
@@ -107,22 +111,22 @@ int main( void )
       exit( EXIT_FAILURE );
    }
 
-   SDL_Window * window = SDL_CreateWindow( "SDL .AND. Cairo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, videoFlags );
-   if( window == NULL )
+   fe->window = SDL_CreateWindow( "SDL .AND. Cairo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, videoFlags );
+   if( fe->window == NULL )
    {
       SDL_Log( "Could not create window: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
 
-   SDL_Renderer * renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
-   if( renderer == NULL )
+   fe->renderer = SDL_CreateRenderer( fe->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+   if( fe->renderer == NULL )
    {
       SDL_Log( "Could not create Renderer: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
 
-   SDL_Surface * sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
-   if( sdl_surface == NULL )
+   fe->sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
+   if( fe->sdl_surface == NULL )
    {
       SDL_Log( "SDL_CreateRGBSurface() failed: %s\n", SDL_GetError() );
       exit( EXIT_FAILURE );
@@ -130,9 +134,9 @@ int main( void )
 
    while( ! quit )
    {
-      SDL_FillRect( sdl_surface, NULL, SDL_MapRGB( sdl_surface->format, 255, 255, 255 ) );
+      SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
 
-      cairo_surface_t * cr_surface = cairo_image_surface_create_for_data( (unsigned char *) sdl_surface->pixels, CAIRO_FORMAT_RGB24, sdl_surface->w, sdl_surface->h, sdl_surface->pitch );
+      cairo_surface_t * cr_surface = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
       cairo_t * cr = cairo_create( cr_surface );
 
       //---
@@ -150,10 +154,10 @@ int main( void )
       cairo_show_text( cr, text );
       //---
 
-      SDL_RenderClear( renderer );
-      SDL_Texture * texture = SDL_CreateTextureFromSurface( renderer, sdl_surface );
-      SDL_RenderCopy( renderer, texture, NULL, NULL ) ;
-      SDL_RenderPresent( renderer );
+      SDL_RenderClear( fe->renderer );
+      SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
+      SDL_RenderCopy( fe->renderer, texture, NULL, NULL ) ;
+      SDL_RenderPresent( fe->renderer );
       SDL_DestroyTexture( texture );
 
       cairo_surface_destroy( cr_surface );
@@ -190,8 +194,8 @@ int main( void )
                         break;
                   }
 
-               SDL_FreeSurface( sdl_surface );
-               sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
+               SDL_FreeSurface( fe->sdl_surface );
+               fe->sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
                break;
             }
          } while( SDL_PollEvent( &event ) );
@@ -199,8 +203,8 @@ int main( void )
       }
    }
 
-   SDL_DestroyRenderer( renderer );
-   SDL_DestroyWindow( window );
+   SDL_DestroyRenderer( fe->renderer );
+   SDL_DestroyWindow( fe->window );
    SDL_Quit();
 
    return 0;
