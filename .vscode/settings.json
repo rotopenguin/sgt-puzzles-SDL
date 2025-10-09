@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "resource.h": "c",
+        "time.h": "c"
+    }
+}

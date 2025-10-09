@@ -7,7 +7,7 @@ set(build_cli_programs TRUE)
 set(build_gui_programs TRUE)
 set(build_icons FALSE)
 set(need_c_icons FALSE)
-option(BUILD_SDL_PROGRAMS "build test programs requiring SDL" FALSE)
+option(BUILD_SDL_PROGRAMS "build test programs requiring SDL" TRUE)
 
 option(USE_DRAW_POLYGON_FALLBACK "force frontend to use fallback software polygon rasterizer" off)
 if(USE_DRAW_POLYGON_FALLBACK)
