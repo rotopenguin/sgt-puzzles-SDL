@@ -44,7 +44,7 @@ set(platform_gui_libs ${GTK_LIBRARIES})
 
 set(platform_libs -lm -lSDL2)
 
-set(build_icons TRUE)
+set(build_icons FALSE)
 if(CMAKE_CROSSCOMPILING)
   # The puzzle icons are built by compiling and running a preliminary
   # set of puzzle binaries. We can't do that if the binaries won't run

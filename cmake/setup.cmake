@@ -3,7 +3,7 @@ set(PUZZLES_ENABLE_UNFINISHED ""
 to build as if official (separated by ';')")
 
 set(build_individual_puzzles TRUE)
-set(build_cli_programs TRUE)
+set(build_cli_programs FALSE)
 set(build_gui_programs TRUE)
 set(build_icons FALSE)
 set(need_c_icons FALSE)
