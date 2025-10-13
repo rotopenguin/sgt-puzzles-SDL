@@ -14,6 +14,9 @@ static const struct drawing_api sdl_drawing;
 static void changed_preset(frontend *fe);
 static void load_prefs(frontend *fe);
 static char *save_prefs(frontend *fe);
+static void draw_fill(frontend *fe);
+static void draw_fill_preserve(frontend *fe);
+
 
 void sdl_drawing_free(drawing *dr) ;
 void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int align, int colour, const char *text);

@@ -48,6 +48,12 @@ void activate_timer(frontend *fe)
 void deactivate_timer(frontend *fe)
 {return;}
 
+static void draw_fill(frontend *fe)
+   {cairo_fill(fe->cr); }
+
+static void draw_fill_preserve(frontend *fe)
+   {cairo_fill_preserve(fe->cr);}
+
 static void draw_set_colour(frontend *fe, int colour) 
 {
     //cairo_set_source_rgb(fe->cr,
@@ -67,7 +73,7 @@ void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize,
                int align, int colour, const char *text) {}
 
 void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
-      frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    cairo_save(fe->cr);
    cairo_new_path(fe->cr);
    cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_NONE);
@@ -98,9 +104,38 @@ void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float
 }
 
 void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,
-                  int fillcolour, int outlinecolour) {}
+                  int fillcolour, int outlinecolour) {
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   int i;
+   cairo_new_path(fe->cr);
+   for (i = 0; i < npoints; i++)
+	   cairo_line_to(fe->cr, coords[i*2] + 0.5, coords[i*2 + 1] + 0.5);
+   cairo_close_path(fe->cr);
+    if (fillcolour >= 0) {
+      draw_set_colour(fe, fillcolour);
+	   draw_fill_preserve(fe);
+    }
+    //assert(outlinecolour >= 0);
+    draw_set_colour(fe, outlinecolour);
+    cairo_stroke(fe->cr);
+    printf("drew a polygon at %i\n",*coords);
+ }
+
 void sdl_draw_circle(drawing *dr, int cx, int cy, int radius,
-                 int fillcolour, int outlinecolour) {}
+                 int fillcolour, int outlinecolour) {
+      frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+    cairo_new_path(fe->cr);
+    cairo_arc(fe->cr, cx + 0.5, cy + 0.5, radius, 0, 2*PI);
+    cairo_close_path(fe->cr);		/* Just in case... */
+    if (fillcolour >= 0) {
+	draw_set_colour(fe, fillcolour);
+	draw_fill_preserve(fe);
+    }
+    //assert(outlinecolour >= 0);
+    draw_set_colour(fe, outlinecolour);
+    cairo_stroke(fe->cr);
+    }
+
 //char *text_fallback(frontend *fe, const char *const *strings, int nstrings)
 //{ return dupstr(strings[0]); }
 void sdl_clip(drawing *dr, int x, int y, int w, int h) {}
@@ -168,7 +203,7 @@ int main( void )
       exit( EXIT_FAILURE );
    }
       midend_new_game(me);
-      midend_size(me,&width,&height,1,1.0);
+      midend_size(me, &width, &height, 1, 1.0);
 
    while( ! quit )
    {
@@ -176,6 +211,10 @@ int main( void )
 
       fe->cr_surface = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
       fe->cr = cairo_create( fe->cr_surface );
+      cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_GRAY);
+      cairo_set_line_width(fe->cr, 1.0);
+      cairo_set_line_cap(fe->cr, CAIRO_LINE_CAP_SQUARE);
+      cairo_set_line_join(fe->cr, CAIRO_LINE_JOIN_ROUND);
       midend_redraw(me);
       //SDL_RenderClear( fe->renderer );
   
