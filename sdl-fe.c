@@ -9,17 +9,9 @@
 #include <SDL2/SDL_timer.h>
 #include <cairo/cairo.h>
 #include "puzzles.h"
+#include "sdl-fe.h"
 
-struct frontend {
-midend *me;
-SDL_Window *window;
-SDL_Renderer *renderer;
-SDL_Surface *sdl_surface;
 
-cairo_t *cr;
-cairo_surface_t *image;
-};
-typedef frontend frontend;
 void fatal(const char *fmt, ...)
 {
     va_list ap;
@@ -42,9 +34,7 @@ void get_random_seed(void **randseed, int *randseedsize)
     *randseedsize = sizeof(struct timeval);
 }
 
-static void changed_preset(frontend *fe);
-static void load_prefs(frontend *fe);
-static char *save_prefs(frontend *fe);
+
 
 void frontend_default_colour(frontend *fe, float *output) {
         output[0] = output[1] = output[2] = 0.9F;
@@ -77,7 +67,7 @@ void sdl_unclip(drawing *dr) {}
 void sdl_start_draw(drawing *dr) {}
 void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {}
 void sdl_end_draw(drawing *dr) {}
-struct blitter { char dummy; };
+
 blitter *sdl_blitter_new(drawing *dr, int w, int h) { return snew(blitter); }
 void sdl_blitter_free(drawing *dr, blitter *bl) { sfree(bl); }
 void sdl_blitter_save(drawing *dr, blitter *bl, int x, int y) {}
@@ -218,7 +208,7 @@ int main( void )
 }
 
 #define NO_THICK_LINE
-static const struct drawing_api gtk_drawing = {
+static const struct drawing_api sdl_drawing = {
     1,
     sdl_draw_text,
     sdl_draw_rect,

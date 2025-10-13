@@ -51,7 +51,7 @@
 #if GTK_CHECK_VERSION(3,8,0)
 # define USE_GDK_FRAME_CLOCK
 #endif
-
+#define USE_CAIRO
 #if defined USE_CAIRO && GTK_CHECK_VERSION(2,10,0)
 /* We can only use printing if we are using Cairo for drawing and we
    have a GTK version >= 2.10 (when GtkPrintOperation was added). */

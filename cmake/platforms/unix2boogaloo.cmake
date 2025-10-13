@@ -39,7 +39,7 @@ endif()
 include_directories(${GTK_INCLUDE_DIRS})
 link_directories(${GTK_LIBRARY_DIRS})
 
-set(platform_common_sources sdl.c )
+set(platform_common_sources sdl-fe.c )
 set(platform_gui_libs ${GTK_LIBRARIES})
 
 set(platform_libs -lm -lSDL2)

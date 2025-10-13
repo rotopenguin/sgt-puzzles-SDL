@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "resource.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "sdl_timer.h": "c"
     }
 }
