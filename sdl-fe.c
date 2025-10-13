@@ -50,10 +50,11 @@ void deactivate_timer(frontend *fe)
 
 static void draw_set_colour(frontend *fe, int colour) 
 {
-    cairo_set_source_rgb(fe->cr,
-                         fe->colours[3*colour + 0], // gonna have to ask the midend to allocate this.
-                         fe->colours[3*colour + 1],
-                         fe->colours[3*colour + 2]);
+    //cairo_set_source_rgb(fe->cr,
+    //                     fe->colours[3*colour + 0], // gonna have to ask the midend to allocate this.
+    //                     fe->colours[3*colour + 1],
+    //                     fe->colours[3*colour + 2]);
+    cairo_set_source_rgb(fe->cr,0.9,0.1,0.1);
 }
 
 //frontend *feawing_new(const drawing_api *api, midend *me, void *handle)
@@ -137,10 +138,8 @@ int main( void )
    int quit = 0;
    double x;
    double y;
-   frontend* fe;
-   fe=malloc(sizeof(frontend));
-
-   const char * text = "https://github.com/rjopek/sdl-cairo";
+   frontend* fe = malloc(sizeof(frontend));
+   midend *me=midend_new(fe, &thegame, &sdl_drawing, fe);
 
    if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) )
    {
@@ -168,6 +167,8 @@ int main( void )
       SDL_Log( "SDL_CreateRGBSurface() failed: %s\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
+      midend_new_game(me);
+      midend_size(me,&width,&height,1,1.0);
 
    while( ! quit )
    {
@@ -175,11 +176,9 @@ int main( void )
 
       fe->cr_surface = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
       fe->cr = cairo_create( fe->cr_surface );
-
-      //---
-
-
-      SDL_RenderClear( fe->renderer );
+      midend_redraw(me);
+      //SDL_RenderClear( fe->renderer );
+  
       SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
       SDL_RenderCopy( fe->renderer, texture, NULL, NULL ) ;
       SDL_RenderPresent( fe->renderer );

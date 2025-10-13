@@ -9,6 +9,7 @@ cairo_t *cr;
 cairo_surface_t *cr_surface; //aka  "fe->image"
 };
 typedef frontend frontend;
+static const struct drawing_api sdl_drawing;
 
 static void changed_preset(frontend *fe);
 static void load_prefs(frontend *fe);
