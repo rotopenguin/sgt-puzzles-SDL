@@ -11,6 +11,9 @@
 #include "puzzles.h"
 #include "sdl-fe.h"
 
+// UGH he has to have drawing* and frontend*. I thought they were cast-equivalent, but aktually 
+// a drawing is a struct that has a -> handle to a frontend, and a pointer to the struct of all the possible drawing calls.
+// this is annoying. 
 
 void fatal(const char *fmt, ...)
 {
@@ -45,22 +48,59 @@ void activate_timer(frontend *fe)
 void deactivate_timer(frontend *fe)
 {return;}
 
-//drawing *drawing_new(const drawing_api *api, midend *me, void *handle)
+static void draw_set_colour(frontend *fe, int colour) 
+{
+    cairo_set_source_rgb(fe->cr,
+                         fe->colours[3*colour + 0], // gonna have to ask the midend to allocate this.
+                         fe->colours[3*colour + 1],
+                         fe->colours[3*colour + 2]);
+}
+
+//frontend *feawing_new(const drawing_api *api, midend *me, void *handle)
 //{ return snew(drawing); }
-void sdl_drawing_free(drawing *dr) { sfree(dr); }
+void sdl_drawing_free(drawing* dr) { 
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   sfree(fe); 
+}
 void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize,
                int align, int colour, const char *text) {}
-void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {}
-#ifndef STANDALONE_POLYGON
-void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {}
-#endif
-void sdl_draw_thick_line(drawing *dr, float thickness,
-		     float x1, float y1, float x2, float y2, int colour) {}
+
+void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
+      frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   cairo_save(fe->cr);
+   cairo_new_path(fe->cr);
+   cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_NONE);
+   cairo_rectangle(fe->cr, x, y, w, h);
+   // fe->dr_api->fill(fe);  // calls do_print_fill BWO internal_printing
+   cairo_fill(fe->cr); 
+   cairo_restore(fe->cr);
+}
+
+void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   draw_set_colour(fe, colour);
+   cairo_new_path(fe->cr);
+   cairo_move_to(fe->cr, x1 + 0.5, y1 + 0.5);
+   cairo_line_to(fe->cr, x2 + 0.5, y2 + 0.5);
+   cairo_stroke(fe->cr);
+}
+
+void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+    cairo_save(fe->cr);
+    cairo_set_line_width(fe->cr, thickness);
+    cairo_new_path(fe->cr);
+    cairo_move_to(fe->cr, x1, y1);
+    cairo_line_to(fe->cr, x2, y2);
+    cairo_stroke(fe->cr);
+    cairo_restore(fe->cr);
+}
+
 void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,
                   int fillcolour, int outlinecolour) {}
 void sdl_draw_circle(drawing *dr, int cx, int cy, int radius,
                  int fillcolour, int outlinecolour) {}
-//char *text_fallback(drawing *dr, const char *const *strings, int nstrings)
+//char *text_fallback(frontend *fe, const char *const *strings, int nstrings)
 //{ return dupstr(strings[0]); }
 void sdl_clip(drawing *dr, int x, int y, int w, int h) {}
 void sdl_unclip(drawing *dr) {}
@@ -72,17 +112,17 @@ blitter *sdl_blitter_new(drawing *dr, int w, int h) { return snew(blitter); }
 void sdl_blitter_free(drawing *dr, blitter *bl) { sfree(bl); }
 void sdl_blitter_save(drawing *dr, blitter *bl, int x, int y) {}
 void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {}
-//int print_mono_colour(drawing *dr, int grey) { return 0; }
-//int print_grey_colour(drawing *dr, float grey) { return 0; }
-//int print_hatched_colour(drawing *dr, int hatch) { return 0; }
-//int print_rgb_mono_colour(drawing *dr, float r, float g, float b, int grey)
+//int print_mono_colour(frontend *fe, int grey) { return 0; }
+//int print_grey_colour(frontend *fe, float grey) { return 0; }
+//int print_hatched_colour(frontend *fe, int hatch) { return 0; }
+//int print_rgb_mono_colour(frontend *fe, float r, float g, float b, int grey)
 //{ return 0; }
-//int print_rgb_grey_colour(drawing *dr, float r, float g, float b, float grey)
+//int print_rgb_grey_colour(frontend *fe, float r, float g, float b, float grey)
 //{ return 0; }
-//int print_rgb_hatched_colour(drawing *dr, float r, float g, float b, int hatch)
+//int print_rgb_hatched_colour(frontend *fe, float r, float g, float b, int hatch)
 //{ return 0; }
-//void print_line_width(drawing *dr, int width) {}
-//void print_line_dotted(drawing *dr, bool dotted) {}
+//void print_line_width(frontend *fe, int width) {}
+//void print_line_dotted(frontend *fe, bool dotted) {}
 void sdl_status_bar(drawing *dr, const char *text) {}
 void document_add_puzzle(document *doc, const game *game, game_params *par,
 			 game_ui *ui, game_state *st, game_state *st2) {}
@@ -133,23 +173,11 @@ int main( void )
    {
       SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
 
-      cairo_surface_t * cr_surface = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
-      cairo_t * cr = cairo_create( cr_surface );
+      fe->cr_surface = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
+      fe->cr = cairo_create( fe->cr_surface );
 
       //---
-      cairo_select_font_face( cr, "FreeMono", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD );
-      cairo_set_font_size( cr, 34 );
-      cairo_set_source_rgba( cr, 0.5, 0.5, 0.5, 1.0 );
 
-      cairo_text_extents_t te;
-      cairo_text_extents( cr, text, &te );
-
-      x = ( width  - te.width ) / 2;
-      y = ( height + te.height ) / 2;
-
-      cairo_move_to( cr, x, y );
-      cairo_show_text( cr, text );
-      //---
 
       SDL_RenderClear( fe->renderer );
       SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
@@ -157,8 +185,8 @@ int main( void )
       SDL_RenderPresent( fe->renderer );
       SDL_DestroyTexture( texture );
 
-      cairo_surface_destroy( cr_surface );
-      cairo_destroy( cr );
+      cairo_surface_destroy( fe->cr_surface );
+      cairo_destroy( fe->cr );
 
       SDL_Event event;
       if( SDL_WaitEvent( &event ) )
