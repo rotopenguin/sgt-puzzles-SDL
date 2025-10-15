@@ -143,6 +143,12 @@ void sdl_unclip(drawing *dr) {
 }
 
 void sdl_start_draw(drawing *dr) {
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   fe->cr = cairo_create(fe->image);
+   cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_GRAY);
+   cairo_set_line_width(fe->cr, 1.0);
+   cairo_set_line_cap(fe->cr, CAIRO_LINE_CAP_SQUARE);
+   cairo_set_line_join(fe->cr, CAIRO_LINE_JOIN_ROUND);
    printf("Starting a draw\n");
 }
 
@@ -254,10 +260,7 @@ int main( void )
 
       fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
       fe->cr = cairo_create( fe->image );
-      cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_GRAY);
-      cairo_set_line_width(fe->cr, 1.0);
-      cairo_set_line_cap(fe->cr, CAIRO_LINE_CAP_SQUARE);
-      cairo_set_line_join(fe->cr, CAIRO_LINE_JOIN_ROUND);
+
       midend_redraw(me);
       //SDL_RenderClear( fe->renderer );
   
