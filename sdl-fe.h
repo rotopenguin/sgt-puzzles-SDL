@@ -4,6 +4,7 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Surface *sdl_surface;
 const float *colours;
+int ncolours;
 cairo_t *cr;
 cairo_surface_t *image;
 };

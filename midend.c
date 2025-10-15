@@ -1388,8 +1388,10 @@ void midend_timer(midend *me, float tplus)
 float *midend_colours(midend *me, int *ncolours)
 {
     float *ret;
+    printf("at line %i\n", __LINE__); fflush(stdout);
 
     ret = me->ourgame->colours(me->frontend, ncolours);
+    printf("at line %i\n", __LINE__); fflush(stdout);
     assert(*ncolours >= 1);
 
     {

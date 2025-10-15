@@ -29,6 +29,12 @@ void get_random_seed(void **randseed, int *randseedsize) {
     *randseedsize = sizeof(struct timeval);
 }
 
+static void snaffle_colours(frontend *fe)
+{
+   printf("who likes segfaults? WE DO!\n");
+   fflush(stdout);
+    fe->colours = midend_colours(fe->me, &fe->ncolours);
+}
 
 void frontend_default_colour(frontend *fe, float *output) {
         output[0] = output[1] = output[2] = 0.9F;
@@ -223,7 +229,7 @@ int main( void )
    double x;
    double y;
    frontend* fe = malloc(sizeof(frontend));
-   midend *me=midend_new(fe, &thegame, &sdl_drawing, fe);
+   fe->me=midend_new(fe, &thegame, &sdl_drawing, fe);
 
    if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) )
    {
@@ -251,8 +257,10 @@ int main( void )
       SDL_Log( "SDL_CreateRGBSurface() failed: %s\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
-      midend_new_game(me);
-      midend_size(me, &width, &height, 1, 1.0);
+      midend_new_game(fe->me);
+      midend_size(fe->me, &width, &height, 1, 1.0);
+      snaffle_colours(fe);
+
 
    while( ! quit )
    {
@@ -261,7 +269,7 @@ int main( void )
       fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
       fe->cr = cairo_create( fe->image );
 
-      midend_redraw(me);
+      midend_redraw(fe->me);
       //SDL_RenderClear( fe->renderer );
   
       SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
