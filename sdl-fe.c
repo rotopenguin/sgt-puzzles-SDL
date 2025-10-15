@@ -91,6 +91,7 @@ void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
 
 void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   draw_set_colour(fe,colour);
    cairo_save(fe->cr);
    cairo_set_line_width(fe->cr, thickness);
    cairo_new_path(fe->cr);
