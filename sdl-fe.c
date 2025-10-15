@@ -121,7 +121,7 @@ void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,  int fillcolo
    //assert(outlinecolour >= 0);
    draw_set_colour(fe, outlinecolour);
    cairo_stroke(fe->cr);
-   printf("drew a polygon at %i\n",*coords);
+   printf("drew an %i-sided polygon\n", npoints);
 }
 
 void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, int outlinecolour) {
