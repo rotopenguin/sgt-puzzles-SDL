@@ -4,9 +4,8 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Surface *sdl_surface;
 const float *colours;
-
 cairo_t *cr;
-cairo_surface_t *cr_surface; //aka  "fe->image"
+cairo_surface_t *image;
 };
 typedef frontend frontend;
 static const struct drawing_api sdl_drawing;
@@ -31,10 +30,14 @@ void sdl_start_draw(drawing *dr) ;
 void sdl_draw_update(drawing *dr, int x, int y, int w, int h);
 void sdl_end_draw(drawing *dr);
 
-struct blitter { char dummy; };
 blitter *sdl_blitter_new(drawing *dr, int w, int h);
 void sdl_blitter_free(drawing *dr, blitter *bl);
 void sdl_blitter_save(drawing *dr, blitter *bl, int x, int y);
 void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y);
 void sdl_status_bar(drawing *dr, const char *text);
 void document_add_puzzle(document *doc, const game *game, game_params *par, game_ui *ui, game_state *st, game_state *st2);
+
+struct blitter {
+    cairo_surface_t *image;
+    int w, h;
+};

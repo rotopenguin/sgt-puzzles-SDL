@@ -11,9 +11,6 @@
 #include "puzzles.h"
 #include "sdl-fe.h"
 
-// UGH he has to have drawing* and frontend*. I thought they were cast-equivalent, but aktually 
-// a drawing is a struct that has a -> handle to a frontend, and a pointer to the struct of all the possible drawing calls.
-// this is annoying. 
 
 void fatal(const char *fmt, ...)
 {
@@ -38,15 +35,15 @@ void get_random_seed(void **randseed, int *randseedsize)
 }
 
 
-
 void frontend_default_colour(frontend *fe, float *output) {
         output[0] = output[1] = output[2] = 0.9F;
 }
 
 void activate_timer(frontend *fe)
-{return;}
+{printf("activating timer, not.\n");}
+
 void deactivate_timer(frontend *fe)
-{return;}
+{printf("deactivating timer, not\n");}
 
 static void draw_fill(frontend *fe)
    {cairo_fill(fe->cr); }
@@ -70,7 +67,9 @@ void sdl_drawing_free(drawing* dr) {
    sfree(fe); 
 }
 void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize,
-               int align, int colour, const char *text) {}
+               int align, int colour, const char *text) {
+                  printf("Did not draw_text  '%s'\n",text);
+               }
 
 void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
@@ -103,8 +102,7 @@ void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float
     cairo_restore(fe->cr);
 }
 
-void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,
-                  int fillcolour, int outlinecolour) {
+void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,  int fillcolour, int outlinecolour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    int i;
    cairo_new_path(fe->cr);
@@ -121,8 +119,7 @@ void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,
     printf("drew a polygon at %i\n",*coords);
  }
 
-void sdl_draw_circle(drawing *dr, int cx, int cy, int radius,
-                 int fillcolour, int outlinecolour) {
+void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, int outlinecolour) {
       frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
     cairo_new_path(fe->cr);
     cairo_arc(fe->cr, cx + 0.5, cy + 0.5, radius, 0, 2*PI);
@@ -138,16 +135,63 @@ void sdl_draw_circle(drawing *dr, int cx, int cy, int radius,
 
 //char *text_fallback(frontend *fe, const char *const *strings, int nstrings)
 //{ return dupstr(strings[0]); }
-void sdl_clip(drawing *dr, int x, int y, int w, int h) {}
-void sdl_unclip(drawing *dr) {}
-void sdl_start_draw(drawing *dr) {}
-void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {}
-void sdl_end_draw(drawing *dr) {}
+void sdl_clip(drawing *dr, int x, int y, int w, int h) {
+   printf("clipped nothing\n");
+}
 
-blitter *sdl_blitter_new(drawing *dr, int w, int h) { return snew(blitter); }
-void sdl_blitter_free(drawing *dr, blitter *bl) { sfree(bl); }
-void sdl_blitter_save(drawing *dr, blitter *bl, int x, int y) {}
-void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {}
+void sdl_unclip(drawing *dr) {
+   printf("unclipped even more nothing\n");
+}
+
+void sdl_start_draw(drawing *dr) {
+   printf("Starting a draw\n");
+}
+
+void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {
+   printf("Draw update? more like 'draw deez nuts'\n");
+}
+void sdl_end_draw(drawing *dr) {
+   printf("Can't end_draw if you never started one\n");
+}
+
+blitter *sdl_blitter_new(drawing *dr, int w, int h) { 
+       frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+    blitter *bl = snew(blitter);
+     bl->image = NULL;
+    bl->w = w;
+    bl->h = h;
+    return bl;
+ }
+
+void sdl_blitter_free(drawing *dr, blitter *bl) { 
+      if (bl->image)
+        cairo_surface_destroy(bl->image);
+   sfree(bl); 
+}
+
+void sdl_blitter_save(drawing *dr, blitter *bl, int x, int y) {
+       frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+    cairo_t *cr;
+    if (!bl->image)
+        bl->image = cairo_surface_create_similar(
+            fe->image, CAIRO_CONTENT_COLOR, bl->w, bl->h);
+    cr = cairo_create(bl->image);
+    cairo_set_source_surface(cr, fe->image, -x, -y);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+}
+
+void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {
+          frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+
+       cairo_save(fe->cr);
+
+    cairo_set_source_surface(fe->cr, bl->image, x, y);
+    cairo_paint(fe->cr);
+
+    cairo_restore(fe->cr);
+}
+
 //int print_mono_colour(frontend *fe, int grey) { return 0; }
 //int print_grey_colour(frontend *fe, float grey) { return 0; }
 //int print_hatched_colour(frontend *fe, int hatch) { return 0; }
@@ -161,7 +205,7 @@ void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {}
 //void print_line_dotted(frontend *fe, bool dotted) {}
 void sdl_status_bar(drawing *dr, const char *text) {}
 void document_add_puzzle(document *doc, const game *game, game_params *par,
-			 game_ui *ui, game_state *st, game_state *st2) {}
+			 game_ui *ui, game_state *st, game_state *st2) {return;} // midend seems to call this in relation to printing.
 
 
 
@@ -209,8 +253,8 @@ int main( void )
    {
       SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
 
-      fe->cr_surface = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
-      fe->cr = cairo_create( fe->cr_surface );
+      fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
+      fe->cr = cairo_create( fe->image );
       cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_GRAY);
       cairo_set_line_width(fe->cr, 1.0);
       cairo_set_line_cap(fe->cr, CAIRO_LINE_CAP_SQUARE);
@@ -223,7 +267,7 @@ int main( void )
       SDL_RenderPresent( fe->renderer );
       SDL_DestroyTexture( texture );
 
-      cairo_surface_destroy( fe->cr_surface );
+      cairo_surface_destroy( fe->image );
       cairo_destroy( fe->cr );
 
       SDL_Event event;
