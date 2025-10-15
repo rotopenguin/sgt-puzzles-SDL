@@ -2,9 +2,9 @@
  *
  */
 
- #include <stdio.h>
- #include <sys/time.h>
- #include <stdarg.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <stdarg.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <cairo/cairo.h>
@@ -29,11 +29,8 @@ void get_random_seed(void **randseed, int *randseedsize) {
     *randseedsize = sizeof(struct timeval);
 }
 
-static void snaffle_colours(frontend *fe)
-{
-   printf("who likes segfaults? WE DO!\n");
-   fflush(stdout);
-    fe->colours = midend_colours(fe->me, &fe->ncolours);
+static void snaffle_colours(frontend *fe) {
+   fe->colours = midend_colours(fe->me, &fe->ncolours);
 }
 
 void frontend_default_colour(frontend *fe, float *output) {
@@ -58,14 +55,11 @@ static void draw_fill_preserve(frontend *fe) {
 
 static void draw_set_colour(frontend *fe, int colour) {
     cairo_set_source_rgb(fe->cr,
-                        fe->colours[3*colour + 0], // gonna have to ask the midend to allocate this.
+                        fe->colours[3*colour + 0], 
                         fe->colours[3*colour + 1],
                         fe->colours[3*colour + 2]);
-   // cairo_set_source_rgb(fe->cr,0.9,0.1,0.1);
 }
 
-//frontend *feawing_new(const drawing_api *api, midend *me, void *handle)
-//{ return snew(drawing); }
 void sdl_drawing_free(drawing* dr) { 
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    sfree(fe); 
@@ -141,11 +135,17 @@ void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, in
 //char *text_fallback(frontend *fe, const char *const *strings, int nstrings)
 //{ return dupstr(strings[0]); }
 void sdl_clip(drawing *dr, int x, int y, int w, int h) {
-   printf("clipped nothing\n");
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   printf("clipped something\n");
+   cairo_new_path(fe->cr);
+   cairo_rectangle(fe->cr, x, y, w, h);
+   cairo_clip(fe->cr);
 }
 
 void sdl_unclip(drawing *dr) {
-   printf("unclipped even more nothing\n");
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   printf("unclipped a thing\n");
+   cairo_reset_clip(fe->cr);
 }
 
 void sdl_start_draw(drawing *dr) {
