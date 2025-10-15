@@ -224,8 +224,7 @@ void document_add_puzzle(document *doc, const game *game, game_params *par,
 
 
 
-int main( void )
-{
+int main( void ) {
    int width      = 720;
    int height     = 480;
    int videoFlags = SDL_WINDOW_FULLSCREEN;
@@ -235,29 +234,25 @@ int main( void )
    frontend* fe = malloc(sizeof(frontend));
    fe->me=midend_new(fe, &thegame, &sdl_drawing, fe);
 
-   if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) )
-   {
+   if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) ) {
       SDL_Log( "Unable to initialize SDL: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
 
    fe->window = SDL_CreateWindow( "SDL .AND. Cairo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, videoFlags );
-   if( fe->window == NULL )
-   {
+   if( fe->window == NULL ) {
       SDL_Log( "Could not create window: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
 
    fe->renderer = SDL_CreateRenderer( fe->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
-   if( fe->renderer == NULL )
-   {
+   if( fe->renderer == NULL ) {
       SDL_Log( "Could not create Renderer: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
 
    fe->sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
-   if( fe->sdl_surface == NULL )
-   {
+   if( fe->sdl_surface == NULL ) {
       SDL_Log( "SDL_CreateRGBSurface() failed: %s\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
@@ -266,8 +261,7 @@ int main( void )
       snaffle_colours(fe);
 
 
-   while( ! quit )
-   {
+   while( ! quit ) {
       SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
 
       //fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
@@ -285,15 +279,11 @@ int main( void )
       // cairo_destroy( fe->cr );
 
       SDL_Event event;
-      if( SDL_WaitEvent( &event ) )
-      {
-         do
-         {
-            switch( event.type )
-            {
+      if( SDL_WaitEvent( &event ) ) {
+         do {
+            switch( event.type ) {
                case SDL_KEYDOWN:
-                  if( event.key.keysym.sym == SDLK_ESCAPE )
-                  {
+                  if( event.key.keysym.sym == SDLK_ESCAPE ) {
                      quit = 1;
                   }
                   break;
@@ -303,8 +293,7 @@ int main( void )
                   break;
 
                case SDL_WINDOWEVENT:
-                  switch( event.window.event )
-                  {
+                  switch( event.window.event ) {
                      case SDL_WINDOWEVENT_SIZE_CHANGED:
                         width = event.window.data1;
                         height = event.window.data2;
@@ -320,7 +309,7 @@ int main( void )
                break;
             }
          } while( SDL_PollEvent( &event ) );
-         printf( "window width  = %d\n" "window height = %d\n", width, height );
+            printf( "window width  = %d\n" "window height = %d\n", width, height );
       }
    }
 
