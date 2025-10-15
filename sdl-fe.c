@@ -150,6 +150,7 @@ void sdl_unclip(drawing *dr) {
 
 void sdl_start_draw(drawing *dr) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
    fe->cr = cairo_create(fe->image);
    cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_GRAY);
    cairo_set_line_width(fe->cr, 1.0);
@@ -163,7 +164,10 @@ void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {
 }
 
 void sdl_end_draw(drawing *dr) {
-   printf("Can't end_draw if you never started one\n");
+    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   printf("Ending a draw\n");
+   cairo_surface_destroy( fe->image );
+   cairo_destroy( fe->cr );
 }
 
 blitter *sdl_blitter_new(drawing *dr, int w, int h) { 
@@ -266,8 +270,8 @@ int main( void )
    {
       SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
 
-      fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
-      fe->cr = cairo_create( fe->image );
+      //fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
+      //fe->cr = cairo_create( fe->image ); //it's part of sdl_start_draw. Right?
 
       midend_redraw(fe->me);
       //SDL_RenderClear( fe->renderer );
@@ -277,8 +281,8 @@ int main( void )
       SDL_RenderPresent( fe->renderer );
       SDL_DestroyTexture( texture );
 
-      cairo_surface_destroy( fe->image );
-      cairo_destroy( fe->cr );
+      // cairo_surface_destroy( fe->image );
+      // cairo_destroy( fe->cr );
 
       SDL_Event event;
       if( SDL_WaitEvent( &event ) )
