@@ -57,11 +57,11 @@ static void draw_fill_preserve(frontend *fe) {
 }
 
 static void draw_set_colour(frontend *fe, int colour) {
-    //cairo_set_source_rgb(fe->cr,
-    //                     fe->colours[3*colour + 0], // gonna have to ask the midend to allocate this.
-    //                     fe->colours[3*colour + 1],
-    //                     fe->colours[3*colour + 2]);
-    cairo_set_source_rgb(fe->cr,0.9,0.1,0.1);
+    cairo_set_source_rgb(fe->cr,
+                        fe->colours[3*colour + 0], // gonna have to ask the midend to allocate this.
+                        fe->colours[3*colour + 1],
+                        fe->colours[3*colour + 2]);
+   // cairo_set_source_rgb(fe->cr,0.9,0.1,0.1);
 }
 
 //frontend *feawing_new(const drawing_api *api, midend *me, void *handle)
