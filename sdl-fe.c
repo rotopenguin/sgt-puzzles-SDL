@@ -12,22 +12,17 @@
 #include "sdl-fe.h"
 
 
-void fatal(const char *fmt, ...)
-{
-    va_list ap;
-
-    fprintf(stderr, "fatal error: ");
-
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    va_end(ap);
-
-    fprintf(stderr, "\n");
-    exit(1);
+void fatal(const char *fmt, ...) {
+   va_list ap;
+   fprintf(stderr, "fatal error: ");
+   va_start(ap, fmt);
+   vfprintf(stderr, fmt, ap);
+   va_end(ap);
+   fprintf(stderr, "\n");
+   exit(1);
 }
 
-void get_random_seed(void **randseed, int *randseedsize)
-{
+void get_random_seed(void **randseed, int *randseedsize) {
     struct timeval *tvp = snew(struct timeval);
     gettimeofday(tvp, NULL);
     *randseed = (void *)tvp;
@@ -39,20 +34,23 @@ void frontend_default_colour(frontend *fe, float *output) {
         output[0] = output[1] = output[2] = 0.9F;
 }
 
-void activate_timer(frontend *fe)
-{printf("activating timer, not.\n");}
+void activate_timer(frontend *fe) {
+   printf("activating timer, not.\n");
+}
 
-void deactivate_timer(frontend *fe)
-{printf("deactivating timer, not\n");}
+void deactivate_timer(frontend *fe) {
+   printf("deactivating timer, not\n");
+}
 
-static void draw_fill(frontend *fe)
-   {cairo_fill(fe->cr); }
+static void draw_fill(frontend *fe) {
+   cairo_fill(fe->cr);
+}
 
-static void draw_fill_preserve(frontend *fe)
-   {cairo_fill_preserve(fe->cr);}
+static void draw_fill_preserve(frontend *fe) {
+   cairo_fill_preserve(fe->cr);
+}
 
-static void draw_set_colour(frontend *fe, int colour) 
-{
+static void draw_set_colour(frontend *fe, int colour) {
     //cairo_set_source_rgb(fe->cr,
     //                     fe->colours[3*colour + 0], // gonna have to ask the midend to allocate this.
     //                     fe->colours[3*colour + 1],
@@ -66,10 +64,10 @@ void sdl_drawing_free(drawing* dr) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    sfree(fe); 
 }
-void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize,
-               int align, int colour, const char *text) {
-                  printf("Did not draw_text  '%s'\n",text);
-               }
+
+void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int align, int colour, const char *text) {
+   printf("Did not draw_text  '%s'\n",text);
+}
 
 void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
@@ -93,13 +91,13 @@ void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
 
 void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-    cairo_save(fe->cr);
-    cairo_set_line_width(fe->cr, thickness);
-    cairo_new_path(fe->cr);
-    cairo_move_to(fe->cr, x1, y1);
-    cairo_line_to(fe->cr, x2, y2);
-    cairo_stroke(fe->cr);
-    cairo_restore(fe->cr);
+   cairo_save(fe->cr);
+   cairo_set_line_width(fe->cr, thickness);
+   cairo_new_path(fe->cr);
+   cairo_move_to(fe->cr, x1, y1);
+   cairo_line_to(fe->cr, x2, y2);
+   cairo_stroke(fe->cr);
+   cairo_restore(fe->cr);
 }
 
 void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,  int fillcolour, int outlinecolour) {
@@ -109,29 +107,29 @@ void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,  int fillcolo
    for (i = 0; i < npoints; i++)
 	   cairo_line_to(fe->cr, coords[i*2] + 0.5, coords[i*2 + 1] + 0.5);
    cairo_close_path(fe->cr);
-    if (fillcolour >= 0) {
-      draw_set_colour(fe, fillcolour);
-	   draw_fill_preserve(fe);
-    }
-    //assert(outlinecolour >= 0);
-    draw_set_colour(fe, outlinecolour);
-    cairo_stroke(fe->cr);
-    printf("drew a polygon at %i\n",*coords);
- }
+   if (fillcolour >= 0) {
+     draw_set_colour(fe, fillcolour);
+	  draw_fill_preserve(fe);
+   }
+   //assert(outlinecolour >= 0);
+   draw_set_colour(fe, outlinecolour);
+   cairo_stroke(fe->cr);
+   printf("drew a polygon at %i\n",*coords);
+}
 
 void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, int outlinecolour) {
-      frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-    cairo_new_path(fe->cr);
-    cairo_arc(fe->cr, cx + 0.5, cy + 0.5, radius, 0, 2*PI);
-    cairo_close_path(fe->cr);		/* Just in case... */
-    if (fillcolour >= 0) {
-	draw_set_colour(fe, fillcolour);
-	draw_fill_preserve(fe);
-    }
-    //assert(outlinecolour >= 0);
-    draw_set_colour(fe, outlinecolour);
-    cairo_stroke(fe->cr);
-    }
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   cairo_new_path(fe->cr);
+   cairo_arc(fe->cr, cx + 0.5, cy + 0.5, radius, 0, 2*PI);
+   cairo_close_path(fe->cr);		/* Just in case... */
+   if (fillcolour >= 0) {
+	   draw_set_colour(fe, fillcolour);
+	   draw_fill_preserve(fe);
+   }
+   //assert(outlinecolour >= 0);
+   draw_set_colour(fe, outlinecolour);
+   cairo_stroke(fe->cr);
+}
 
 //char *text_fallback(frontend *fe, const char *const *strings, int nstrings)
 //{ return dupstr(strings[0]); }
@@ -150,22 +148,23 @@ void sdl_start_draw(drawing *dr) {
 void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {
    printf("Draw update? more like 'draw deez nuts'\n");
 }
+
 void sdl_end_draw(drawing *dr) {
    printf("Can't end_draw if you never started one\n");
 }
 
 blitter *sdl_blitter_new(drawing *dr, int w, int h) { 
-       frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-    blitter *bl = snew(blitter);
-     bl->image = NULL;
-    bl->w = w;
-    bl->h = h;
-    return bl;
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   blitter *bl = snew(blitter);
+   bl->image = NULL;
+   bl->w = w;
+   bl->h = h;
+   return bl;
  }
 
 void sdl_blitter_free(drawing *dr, blitter *bl) { 
-      if (bl->image)
-        cairo_surface_destroy(bl->image);
+   if (bl->image)
+      cairo_surface_destroy(bl->image);
    sfree(bl); 
 }
 
@@ -182,14 +181,11 @@ void sdl_blitter_save(drawing *dr, blitter *bl, int x, int y) {
 }
 
 void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {
-          frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-
-       cairo_save(fe->cr);
-
-    cairo_set_source_surface(fe->cr, bl->image, x, y);
-    cairo_paint(fe->cr);
-
-    cairo_restore(fe->cr);
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   cairo_save(fe->cr);
+   cairo_set_source_surface(fe->cr, bl->image, x, y);
+   cairo_paint(fe->cr);
+   cairo_restore(fe->cr);
 }
 
 //int print_mono_colour(frontend *fe, int grey) { return 0; }
@@ -203,7 +199,9 @@ void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {
 //{ return 0; }
 //void print_line_width(frontend *fe, int width) {}
 //void print_line_dotted(frontend *fe, bool dotted) {}
-void sdl_status_bar(drawing *dr, const char *text) {}
+void sdl_status_bar(drawing *dr, const char *text) {
+   printf("status bar isn't '%s'\n",text);
+}
 void document_add_puzzle(document *doc, const game *game, game_params *par,
 			 game_ui *ui, game_state *st, game_state *st2) {return;} // midend seems to call this in relation to printing.
 
