@@ -34,7 +34,7 @@ static void snaffle_colours(frontend *fe) {
 }
 
 void frontend_default_colour(frontend *fe, float *output) {
-        output[0] = output[1] = output[2] = 0.9F;
+        output[0] = output[1] = output[2] = 0.1F;
 }
 
 void activate_timer(frontend *fe) {
@@ -66,7 +66,12 @@ void sdl_drawing_free(drawing* dr) {
 }
 
 void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int align, int colour, const char *text) {
-   printf("Did not draw_text  '%s'\n",text);
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   cairo_move_to(fe->cr, x, y);
+   draw_set_colour(fe, colour);
+   cairo_set_font_size(fe->cr, fontsize);
+   cairo_show_text(fe->cr, text);
+   printf("tried to draw_text  '%s'\n",text);
 }
 
 void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
@@ -93,7 +98,7 @@ void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
 
 void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-   draw_set_colour(fe,colour);
+   draw_set_colour(fe, colour);
    cairo_save(fe->cr);
    cairo_set_line_width(fe->cr, thickness);
    cairo_new_path(fe->cr);
@@ -156,6 +161,7 @@ void sdl_start_draw(drawing *dr) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
    fe->cr = cairo_create(fe->image);
+   cairo_select_font_face (fe->cr,  "@cairo:monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
    cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_GRAY);
    cairo_set_line_width(fe->cr, 1.0);
    cairo_set_line_cap(fe->cr, CAIRO_LINE_CAP_SQUARE);
