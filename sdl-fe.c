@@ -78,6 +78,7 @@ void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
    // fe->dr_api->fill(fe);  // calls do_print_fill BWO internal_printing
    cairo_fill(fe->cr); 
    cairo_restore(fe->cr);
+   //printf("Drew a rect\n");
 }
 
 void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
@@ -87,6 +88,7 @@ void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
    cairo_move_to(fe->cr, x1 + 0.5, y1 + 0.5);
    cairo_line_to(fe->cr, x2 + 0.5, y2 + 0.5);
    cairo_stroke(fe->cr);
+   //printf("Drew a line\n");
 }
 
 void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
@@ -99,6 +101,7 @@ void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float
    cairo_line_to(fe->cr, x2, y2);
    cairo_stroke(fe->cr);
    cairo_restore(fe->cr);
+   //printf("Drew a THICC line\n");
 }
 
 void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,  int fillcolour, int outlinecolour) {
@@ -115,7 +118,7 @@ void sdl_draw_polygon(drawing *dr, const int *coords, int npoints,  int fillcolo
    //assert(outlinecolour >= 0);
    draw_set_colour(fe, outlinecolour);
    cairo_stroke(fe->cr);
-   printf("drew an %i-sided polygon\n", npoints);
+   //printf("drew an %i-sided polygon\n", npoints);
 }
 
 void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, int outlinecolour) {
@@ -130,6 +133,7 @@ void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, in
    //assert(outlinecolour >= 0);
    draw_set_colour(fe, outlinecolour);
    cairo_stroke(fe->cr);
+   //printf("Drew a circle\n");
 }
 
 //char *text_fallback(frontend *fe, const char *const *strings, int nstrings)
@@ -160,12 +164,14 @@ void sdl_start_draw(drawing *dr) {
 }
 
 void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {
+   // this seems to expand the "dirty area" that will be refreshed on the next end_draw. I could just refresh everything?
    printf("Draw update? more like 'draw deez nuts'\n");
 }
 
 void sdl_end_draw(drawing *dr) {
     frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    printf("Ending a draw\n");
+   //I Guess I have to make a repaint happen here? 
    cairo_surface_destroy( fe->image );
    cairo_destroy( fe->cr );
 }
@@ -267,7 +273,7 @@ int main( void ) {
       //fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
       //fe->cr = cairo_create( fe->image ); //it's part of sdl_start_draw. Right?
 
-      midend_redraw(fe->me);
+      midend_force_redraw(fe->me);
       //SDL_RenderClear( fe->renderer );
   
       SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
