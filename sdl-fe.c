@@ -78,13 +78,10 @@ void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int al
 	   //SGT and Cairo agree that the baseline = vertical origin.
    }
    if (align & ALIGN_HCENTRE) {
-      printf ("Hcentering '%s' by %f\n",text, extents.width/2);
-	   x -= extents.x_advance / 2; // extents.width make a dogs dinner of measuring the width of '1'
+	   x -= extents.x_advance / 2; // extents.width makes a dog's dinner of measuring the width of '1'
    } else if (align & ALIGN_HRIGHT) {
 	  x -= extents.x_advance;
-      printf ("Hrighting '%s' by %f to get %i\n",text, extents.width, x);
-   } else {
-      printf ("Hnormaling? '%s'\n",text);
+   } else {//ALIGN_HLEFT
    }
    cairo_move_to(fe->cr, x, y);
    cairo_show_text(fe->cr, text);
