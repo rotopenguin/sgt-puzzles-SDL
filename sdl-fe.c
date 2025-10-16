@@ -68,36 +68,27 @@ void sdl_drawing_free(drawing* dr) {
 void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int align, int colour, const char *text) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    cairo_text_extents_t extents;
+   int origx=x, origy=y;
+   draw_set_colour(fe,colour);
    cairo_set_font_size(fe->cr, fontsize);
-   cairo_text_extents(fe->cr, text, &extents);
-
+   cairo_text_extents(fe->cr, text, &extents); 
    if (align & ALIGN_VCENTRE) {
 	   y += extents.height / 2;
-      printf ("Vcentering '%s'\n",text);
-      cairo_set_source_rgb(fe->cr, 1.0, 0.0, 0.0);
-   } else {
-	   y -= extents.height;
-      printf ("not Vcentering '%s'\n",text);
-      cairo_set_source_rgb(fe->cr, 0.0, 1.0, 0.0);
+   } else { // ALIGN_VNORMAL
+	   //SGT and Cairo agree that the baseline = vertical origin.
    }
-
    if (align & ALIGN_HCENTRE) {
-      printf ("Hcentering '%s'\n",text);
-      cairo_set_source_rgb(fe->cr, 0.0, 0.0, 1.0);
-	   x -= extents.width / 2;
+      printf ("Hcentering '%s' by %f\n",text, extents.width/2);
+	   x -= extents.x_advance / 2; // extents.width make a dogs dinner of measuring the width of '1'
    } else if (align & ALIGN_HRIGHT) {
-      printf ("Hrighting '%s'\n",text);
-      cairo_set_source_rgb(fe->cr, 0.5, 0.5, 0.0);
-	   x -= extents.width;
+	  x -= extents.x_advance;
+      printf ("Hrighting '%s' by %f to get %i\n",text, extents.width, x);
    } else {
       printf ("Hnormaling? '%s'\n",text);
-      cairo_set_source_rgb(fe->cr, 0.0, 0.0, 0.0);
    }
-
    cairo_move_to(fe->cr, x, y);
-   //draw_set_colour(fe, colour);
    cairo_show_text(fe->cr, text);
-//   printf("tried to draw_text  '%s'\n",text);
+   //sdl_draw_circle(dr,origx,origy,2,1,2);
 }
 
 void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
@@ -123,7 +114,7 @@ void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
 }
 
 #define NO_THICK_LINE
-// thick line is used by Undead, this guy just calls recursively until crash. Oopsie.
+// thick line is used by Undead, this guy just causes a recursive draw_thick_line() call until crash. Oopsie.
 void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    draw_set_colour(fe, colour);
