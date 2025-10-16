@@ -67,9 +67,35 @@ void sdl_drawing_free(drawing* dr) {
 
 void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int align, int colour, const char *text) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-   cairo_move_to(fe->cr, x, y);
-   draw_set_colour(fe, colour);
+   cairo_text_extents_t extents;
    cairo_set_font_size(fe->cr, fontsize);
+   cairo_text_extents(fe->cr, text, &extents);
+
+   if (align & ALIGN_VCENTRE) {
+	   y += extents.height / 2;
+      printf ("Vcentering '%s'\n",text);
+      cairo_set_source_rgb(fe->cr, 1.0, 0.0, 0.0);
+   } else {
+	   y -= extents.height;
+      printf ("not Vcentering '%s'\n",text);
+      cairo_set_source_rgb(fe->cr, 0.0, 1.0, 0.0);
+   }
+
+   if (align & ALIGN_HCENTRE) {
+      printf ("Hcentering '%s'\n",text);
+      cairo_set_source_rgb(fe->cr, 0.0, 0.0, 1.0);
+	   x -= extents.width / 2;
+   } else if (align & ALIGN_HRIGHT) {
+      printf ("Hrighting '%s'\n",text);
+      cairo_set_source_rgb(fe->cr, 0.5, 0.5, 0.0);
+	   x -= extents.width;
+   } else {
+      printf ("Hnormaling? '%s'\n",text);
+      cairo_set_source_rgb(fe->cr, 0.0, 0.0, 0.0);
+   }
+
+   cairo_move_to(fe->cr, x, y);
+   //draw_set_colour(fe, colour);
    cairo_show_text(fe->cr, text);
 //   printf("tried to draw_text  '%s'\n",text);
 }
@@ -166,17 +192,17 @@ void sdl_start_draw(drawing *dr) {
    cairo_set_line_width(fe->cr, 1.0);
    cairo_set_line_cap(fe->cr, CAIRO_LINE_CAP_SQUARE);
    cairo_set_line_join(fe->cr, CAIRO_LINE_JOIN_ROUND);
-   printf("Starting a draw\n");
+   //printf("Starting a draw\n");
 }
 
 void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {
    // this seems to expand the "dirty area" that will be refreshed on the next end_draw. I could just refresh everything?
-   printf("Draw update? more like 'draw deez nuts'\n");
+   //printf("Draw update? more like 'draw deez nuts'\n");
 }
 
 void sdl_end_draw(drawing *dr) {
     frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-   printf("Ending a draw\n");
+   printf("end_draw, I should probably poke SDL to render or something\n");
    //I Guess I have to make a repaint happen here? 
    cairo_surface_destroy( fe->image );
    cairo_destroy( fe->cr );
