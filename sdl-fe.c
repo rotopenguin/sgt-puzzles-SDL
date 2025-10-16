@@ -69,10 +69,9 @@ void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int al
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    cairo_move_to(fe->cr, x, y);
    draw_set_colour(fe, colour);
-   //cairo_set_source_rgb(fe->cr, 0.2, 0.2, 0.2);
    cairo_set_font_size(fe->cr, fontsize);
    cairo_show_text(fe->cr, text);
-   printf("tried to draw_text  '%s'\n",text);
+//   printf("tried to draw_text  '%s'\n",text);
 }
 
 void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
@@ -82,7 +81,6 @@ void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
    cairo_new_path(fe->cr);
    cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_NONE);
    cairo_rectangle(fe->cr, x, y, w, h);
-   // fe->dr_api->fill(fe);  // calls do_print_fill BWO internal_printing
    cairo_fill(fe->cr); 
    cairo_restore(fe->cr);
    //printf("Drew a rect\n");
@@ -147,7 +145,7 @@ void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, in
 //{ return dupstr(strings[0]); }
 void sdl_clip(drawing *dr, int x, int y, int w, int h) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-   printf("clipped something\n");
+   //printf("clipped something\n");
    cairo_new_path(fe->cr);
    cairo_rectangle(fe->cr, x, y, w, h);
    cairo_clip(fe->cr);
@@ -155,7 +153,7 @@ void sdl_clip(drawing *dr, int x, int y, int w, int h) {
 
 void sdl_unclip(drawing *dr) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-   printf("unclipped a thing\n");
+   //printf("unclipped a thing\n");
    cairo_reset_clip(fe->cr);
 }
 
@@ -333,7 +331,7 @@ int main( void ) {
    return 0;
 }
 
-#define NO_THICK_LINE
+//#define NO_THICK_LINE
 static const struct drawing_api sdl_drawing = {
     1,
     sdl_draw_text,
