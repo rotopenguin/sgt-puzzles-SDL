@@ -34,7 +34,7 @@ static void snaffle_colours(frontend *fe) {
 }
 
 void frontend_default_colour(frontend *fe, float *output) {
-        output[0] = output[1] = output[2] = 0.1F;
+        output[0] = output[1] = output[2] = 1.0F;
 }
 
 void activate_timer(frontend *fe) {
@@ -69,6 +69,7 @@ void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int al
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    cairo_move_to(fe->cr, x, y);
    draw_set_colour(fe, colour);
+   //cairo_set_source_rgb(fe->cr, 0.2, 0.2, 0.2);
    cairo_set_font_size(fe->cr, fontsize);
    cairo_show_text(fe->cr, text);
    printf("tried to draw_text  '%s'\n",text);
@@ -76,6 +77,7 @@ void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int al
 
 void sdl_draw_rect(drawing *dr, int x, int y, int w, int h, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   draw_set_colour(fe, colour);
    cairo_save(fe->cr);
    cairo_new_path(fe->cr);
    cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_NONE);
@@ -201,8 +203,7 @@ void sdl_blitter_save(drawing *dr, blitter *bl, int x, int y) {
        frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
     cairo_t *cr;
     if (!bl->image)
-        bl->image = cairo_surface_create_similar(
-            fe->image, CAIRO_CONTENT_COLOR, bl->w, bl->h);
+        bl->image = cairo_surface_create_similar(fe->image, CAIRO_CONTENT_COLOR, bl->w, bl->h);
     cr = cairo_create(bl->image);
     cairo_set_source_surface(cr, fe->image, -x, -y);
     cairo_paint(cr);
