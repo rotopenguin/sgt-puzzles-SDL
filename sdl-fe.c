@@ -175,6 +175,7 @@ void sdl_start_draw(drawing *dr) {
    fe->bbox_r = 0;
    fe->bbox_u = fe->sdl_surface->h;
    fe->bbox_d = 0;
+   SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
    fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
    fe->cr = cairo_create(fe->image);
    cairo_select_font_face (fe->cr,  "@cairo:monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -198,6 +199,11 @@ void sdl_end_draw(drawing *dr) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    printf("end_draw, I should probably poke SDL to render or something\n");
    //I Guess I have to make a repaint happen here? 
+   SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
+   SDL_RenderCopy( fe->renderer, texture, NULL, NULL ) ;
+   SDL_RenderPresent( fe->renderer );
+   SDL_DestroyTexture( texture );
+
    cairo_surface_destroy( fe->image );
    cairo_destroy( fe->cr );
 }
@@ -280,14 +286,13 @@ int main( void ) {
    snaffle_colours(fe);
 
    while( ! quit ) {
-      SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
       midend_force_redraw(fe->me);
       //SDL_RenderClear( fe->renderer );
   
-      SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
-      SDL_RenderCopy( fe->renderer, texture, NULL, NULL ) ;
-      SDL_RenderPresent( fe->renderer );
-      SDL_DestroyTexture( texture );
+      // SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
+      // SDL_RenderCopy( fe->renderer, texture, NULL, NULL ) ;
+      // SDL_RenderPresent( fe->renderer );
+      // SDL_DestroyTexture( texture );
 
       SDL_Event event;
       if( SDL_WaitEvent( &event ) ) {
@@ -315,7 +320,7 @@ int main( void ) {
                         break;
                   }
 
-               SDL_FreeSurface( fe->sdl_surface );
+               SDL_FreeSurface( fe->sdl_surface ); 
                fe->sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
                break;
             }
@@ -327,6 +332,7 @@ int main( void ) {
    SDL_DestroyRenderer( fe->renderer );
    SDL_DestroyWindow( fe->window );
    SDL_Quit();
+   midend_free(fe->me);
    sfree(fe);
    return 0;
 }
