@@ -247,42 +247,35 @@ int main( void ) {
    int quit = 0;
    double x;
    double y;
-   frontend* fe = malloc(sizeof(frontend));
+   frontend* fe = snew(frontend);
    fe->me=midend_new(fe, &thegame, &sdl_drawing, fe);
 
    if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) ) {
       SDL_Log( "Unable to initialize SDL: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
-
    fe->window = SDL_CreateWindow( "SGT Puzzles", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, videoFlags );
    if( fe->window == NULL ) {
       SDL_Log( "Could not create window: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
-
    fe->renderer = SDL_CreateRenderer( fe->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
    if( fe->renderer == NULL ) {
       SDL_Log( "Could not create Renderer: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
-
    fe->sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
    if( fe->sdl_surface == NULL ) {
       SDL_Log( "SDL_CreateRGBSurface() failed: %s\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
-      midend_new_game(fe->me);
-      midend_size(fe->me, &width, &height, 1, 1.0);
-      snaffle_colours(fe);
 
+   midend_new_game(fe->me);
+   midend_size(fe->me, &width, &height, 1, 1.0);
+   snaffle_colours(fe);
 
    while( ! quit ) {
       SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
-
-      //fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
-      //fe->cr = cairo_create( fe->image ); //it's part of sdl_start_draw. Right?
-
       midend_force_redraw(fe->me);
       //SDL_RenderClear( fe->renderer );
   
@@ -290,9 +283,6 @@ int main( void ) {
       SDL_RenderCopy( fe->renderer, texture, NULL, NULL ) ;
       SDL_RenderPresent( fe->renderer );
       SDL_DestroyTexture( texture );
-
-      // cairo_surface_destroy( fe->image );
-      // cairo_destroy( fe->cr );
 
       SDL_Event event;
       if( SDL_WaitEvent( &event ) ) {
@@ -332,7 +322,7 @@ int main( void ) {
    SDL_DestroyRenderer( fe->renderer );
    SDL_DestroyWindow( fe->window );
    SDL_Quit();
-  free(fe);
+   sfree(fe);
    return 0;
 }
 
