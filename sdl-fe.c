@@ -178,7 +178,7 @@ void sdl_start_draw(drawing *dr) {
    SDL_FillRect( fe->sdl_surface, NULL, SDL_MapRGB( fe->sdl_surface->format, 255, 255, 255 ) );
    fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
    fe->cr = cairo_create(fe->image);
-   cairo_select_font_face (fe->cr,  "@cairo:monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+   cairo_select_font_face (fe->cr,  "@cairo:monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
    cairo_set_antialias(fe->cr, CAIRO_ANTIALIAS_GRAY);
    cairo_set_line_width(fe->cr, 1.0);
    cairo_set_line_cap(fe->cr, CAIRO_LINE_CAP_SQUARE);
@@ -357,9 +357,13 @@ void nom_key_event(frontend *fe, SDL_Event *event) {
       case SDLK_SPACE:
          keyval=' ' ; break;
       case SDLK_RETURN:
-         keyval='\n' ; break; //yolo
-      case SDLK_q:
-         fe->quit=1; break;
+         keyval='\n' ; break; 
+      case SDLK_a: 
+         keyval='a'; break;
+      case SDLK_d:
+         keyval='d'; break;
+      case SDLK_ESCAPE:
+         fe->quit=1; return;
    }
    if (keydown && keyval) {
       midend_process_key(fe->me, 0, 0, keyval);
