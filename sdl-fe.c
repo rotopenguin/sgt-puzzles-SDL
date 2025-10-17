@@ -355,7 +355,7 @@ static const struct drawing_api sdl_drawing = {
     sdl_blitter_load,
     NULL, //begin_doc
     NULL, //begin_page
-    NULL,  //begin_puzzle
+    NULL, //begin_puzzle
     NULL, //end_doc
     NULL, //end_page
     NULL, //end_puzzle

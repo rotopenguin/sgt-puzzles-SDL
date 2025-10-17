@@ -1,3 +1,5 @@
+#pragma once
+
 struct frontend {
 midend *me;
 SDL_Window *window;
