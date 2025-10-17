@@ -171,6 +171,10 @@ void sdl_unclip(drawing *dr) {
 
 void sdl_start_draw(drawing *dr) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   fe->bbox_l = fe->sdl_surface->w;
+   fe->bbox_r = 0;
+   fe->bbox_u = fe->sdl_surface->h;
+   fe->bbox_d = 0;
    fe->image = cairo_image_surface_create_for_data( (unsigned char *) fe->sdl_surface->pixels, CAIRO_FORMAT_RGB24, fe->sdl_surface->w, fe->sdl_surface->h, fe->sdl_surface->pitch );
    fe->cr = cairo_create(fe->image);
    cairo_select_font_face (fe->cr,  "@cairo:monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -183,11 +187,15 @@ void sdl_start_draw(drawing *dr) {
 
 void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {
    // this seems to expand the "dirty area" that will be refreshed on the next end_draw. I could just refresh everything?
-   //printf("Draw update? more like 'draw deez nuts'\n");
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   if (fe->bbox_l > x  ) fe->bbox_l = x  ;
+   if (fe->bbox_r < x+w) fe->bbox_r = x+w;
+   if (fe->bbox_u > y  ) fe->bbox_u = y  ;
+   if (fe->bbox_d < y+h) fe->bbox_d = y+h;
 }
 
 void sdl_end_draw(drawing *dr) {
-    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    printf("end_draw, I should probably poke SDL to render or something\n");
    //I Guess I have to make a repaint happen here? 
    cairo_surface_destroy( fe->image );
@@ -238,7 +246,7 @@ void document_add_puzzle(document *doc, const game *game, game_params *par,
 
 
 int main( void ) {
-   int width      = 720;
+   int width      = 720; 
    int height     = 480;
    int videoFlags = SDL_WINDOW_FULLSCREEN;
    int quit = 0;

@@ -9,6 +9,7 @@ const float *colours;
 int ncolours;
 cairo_t *cr;
 cairo_surface_t *image;
+int bbox_l, bbox_r, bbox_u, bbox_d;
 };
 typedef frontend frontend;
 static const struct drawing_api sdl_drawing;
