@@ -110,8 +110,6 @@ void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
    //printf("Drew a line\n");
 }
 
-//#define NO_THICK_LINE
-// thick line is used by Undead, this guy just causes a recursive draw_thick_line() call until crash. Oopsie.
 void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    draw_set_colour(fe, colour);
@@ -157,8 +155,6 @@ void sdl_draw_circle(drawing *dr, int cx, int cy, int radius, int fillcolour, in
    //printf("Drew a circle\n");
 }
 
-//char *text_fallback(frontend *fe, const char *const *strings, int nstrings)
-//{ return dupstr(strings[0]); }
 void sdl_clip(drawing *dr, int x, int y, int w, int h) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    //printf("clipped something\n");
@@ -235,6 +231,7 @@ void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {
 void sdl_status_bar(drawing *dr, const char *text) {
    printf("status bar isn't '%s'\n",text);
 }
+
 void document_add_puzzle(document *doc, const game *game, game_params *par,
 			 game_ui *ui, game_state *st, game_state *st2) {return;} // midend seems to call this in relation to printing.
 
