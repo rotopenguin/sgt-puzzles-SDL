@@ -341,11 +341,7 @@ static const struct drawing_api sdl_drawing = {
     sdl_draw_text,
     sdl_draw_rect,
     sdl_draw_line,
-#ifdef USE_DRAW_POLYGON_FALLBACK
-    sdl_draw_polygon_fallback,
-#else
     sdl_draw_polygon,
-#endif
     sdl_draw_circle,
     sdl_draw_update,
     sdl_clip,
@@ -357,27 +353,14 @@ static const struct drawing_api sdl_drawing = {
     sdl_blitter_free,
     sdl_blitter_save,
     sdl_blitter_load,
-#ifdef USE_PRINTING
-    gtk_begin_doc,
-    gtk_begin_page,
-    gtk_begin_puzzle,
-    gtk_end_puzzle,
-    gtk_end_page,
-    gtk_end_doc,
-    gtk_line_width,
-    gtk_line_dotted,
-#else
-    NULL, NULL, NULL, NULL, NULL, NULL, /* {begin,end}_{doc,page,puzzle} */
-    NULL, NULL,			       /* line_width, line_dotted */
-#endif
-#ifdef USE_PANGO
-    gtk_text_fallback,
-#else
-    NULL,
-#endif
-#ifdef NO_THICK_LINE
-    NULL,
-#else
+    NULL, //begin_doc
+    NULL, //begin_page
+    NULL,  //begin_puzzle
+    NULL, //end_doc
+    NULL, //end_page
+    NULL, //end_puzzle
+    NULL, //line_width
+    NULL, //line_dotted	
+    NULL, //text_fallback
     sdl_draw_thick_line,
-#endif
 };
