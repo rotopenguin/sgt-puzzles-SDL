@@ -10,6 +10,7 @@ int ncolours;
 cairo_t *cr;
 cairo_surface_t *image;
 int bbox_l, bbox_r, bbox_u, bbox_d;
+int quit;
 };
 typedef frontend frontend;
 static const struct drawing_api sdl_drawing;
@@ -19,6 +20,7 @@ static void load_prefs(frontend *fe);
 static char *save_prefs(frontend *fe);
 static void draw_fill(frontend *fe);
 static void draw_fill_preserve(frontend *fe);
+void nom_key_event(frontend *fe, SDL_Event *event);
 
 
 void sdl_drawing_free(drawing *dr) ;

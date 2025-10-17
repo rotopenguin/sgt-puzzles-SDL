@@ -259,6 +259,7 @@ int main( void ) {
    double x;
    double y;
    frontend* fe = snew(frontend);
+   fe->quit=0;
    fe->me=midend_new(fe, &thegame, &sdl_drawing, fe);
 
    if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) ) {
@@ -285,7 +286,7 @@ int main( void ) {
    midend_size(fe->me, &width, &height, 1, 1.0);
    snaffle_colours(fe);
 
-   while( ! quit ) {
+   while( ! fe->quit ) {
       midend_force_redraw(fe->me);
       //SDL_RenderClear( fe->renderer );
   
@@ -297,15 +298,12 @@ int main( void ) {
       SDL_Event event;
       if( SDL_WaitEvent( &event ) ) {
          do {
+            nom_key_event(fe, &event);
             switch( event.type ) {
-               case SDL_KEYDOWN:
-                  if( event.key.keysym.sym == SDLK_ESCAPE ) {
-                     quit = 1;
-                  }
-                  break;
+           
 
                case SDL_QUIT:
-                  quit = 1;
+                  fe->quit = 1;
                   break;
 
                case SDL_WINDOWEVENT:
@@ -335,6 +333,37 @@ int main( void ) {
    midend_free(fe->me);
    sfree(fe);
    return 0;
+}
+
+void nom_key_event(frontend *fe, SDL_Event *event) {
+   int keydown = 0, keyup = 0;
+   if (event->type ==SDL_KEYUP ) keyup = 1;
+   if (event->type ==SDL_KEYDOWN ) keydown = 1;
+   SDL_Keycode sym= event->key.keysym.sym;
+   int keyval=0;
+   switch(sym) {
+      case SDLK_UP:
+         keyval=CURSOR_UP; break;
+      case SDLK_DOWN:
+         keyval=CURSOR_DOWN; break;
+      case SDLK_LEFT:
+         keyval=CURSOR_LEFT; break;
+      case SDLK_RIGHT:
+         keyval=CURSOR_RIGHT; break;
+      case SDLK_z: 
+         keyval=UI_UNDO; break;
+      case SDLK_r:
+         keyval=UI_REDO; break;
+      case SDLK_SPACE:
+         keyval=' ' ; break;
+      case SDLK_RETURN:
+         keyval='\n' ; break; //yolo
+      case SDLK_q:
+         fe->quit=1; break;
+   }
+   if (keydown && keyval) {
+      midend_process_key(fe->me, 0, 0, keyval);
+   }
 }
 
 static const struct drawing_api sdl_drawing = {
