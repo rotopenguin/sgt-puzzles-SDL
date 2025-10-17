@@ -255,7 +255,7 @@ int main( void ) {
       exit( EXIT_FAILURE );
    }
 
-   fe->window = SDL_CreateWindow( "SDL .AND. Cairo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, videoFlags );
+   fe->window = SDL_CreateWindow( "SGT Puzzles", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, videoFlags );
    if( fe->window == NULL ) {
       SDL_Log( "Could not create window: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
