@@ -110,7 +110,7 @@ void sdl_draw_line(drawing *dr, int x1, int y1, int x2, int y2, int colour) {
    //printf("Drew a line\n");
 }
 
-#define NO_THICK_LINE
+//#define NO_THICK_LINE
 // thick line is used by Undead, this guy just causes a recursive draw_thick_line() call until crash. Oopsie.
 void sdl_draw_thick_line(drawing *dr, float thickness, float x1, float y1, float x2, float y2, int colour) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
@@ -232,17 +232,6 @@ void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {
    cairo_restore(fe->cr);
 }
 
-//int print_mono_colour(frontend *fe, int grey) { return 0; }
-//int print_grey_colour(frontend *fe, float grey) { return 0; }
-//int print_hatched_colour(frontend *fe, int hatch) { return 0; }
-//int print_rgb_mono_colour(frontend *fe, float r, float g, float b, int grey)
-//{ return 0; }
-//int print_rgb_grey_colour(frontend *fe, float r, float g, float b, float grey)
-//{ return 0; }
-//int print_rgb_hatched_colour(frontend *fe, float r, float g, float b, int hatch)
-//{ return 0; }
-//void print_line_width(frontend *fe, int width) {}
-//void print_line_dotted(frontend *fe, bool dotted) {}
 void sdl_status_bar(drawing *dr, const char *text) {
    printf("status bar isn't '%s'\n",text);
 }
@@ -389,6 +378,6 @@ static const struct drawing_api sdl_drawing = {
 #ifdef NO_THICK_LINE
     NULL,
 #else
-    draw_thick_line,
+    sdl_draw_thick_line,
 #endif
 };
