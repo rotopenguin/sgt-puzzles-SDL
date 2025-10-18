@@ -37,12 +37,22 @@ void frontend_default_colour(frontend *fe, float *output) {
         output[0] = output[1] = output[2] = 1.0F;
 }
 
-void activate_timer(frontend *fe) {
+void activate_timer(frontend *fe) { // SDL_AddTimer is almost certainly not what we want.
+   fe->timer_ticks=SDL_GetTicks();
+   fe->timer_handle=SDL_AddTimer(20, timerfunc, fe);
    printf("activating timer, not.\n");
 }
 
 void deactivate_timer(frontend *fe) {
+   SDL_RemoveTimer(fe->timer_handle);
    printf("deactivating timer, not\n");
+}
+
+Uint32 timerfunc(Uint32 time, void *voidfe){ //this happens in a thread. Oh no.
+   //midend_timer(fe->me);
+   frontend *fe = voidfe;
+   __atomic_fetch_add( &fe->timer_firing,1,__ATOMIC_ACQ_REL); 
+   printf("Timer? ");
 }
 
 static void draw_fill(frontend *fe) {
@@ -260,9 +270,12 @@ int main( void ) {
    double y;
    frontend* fe = snew(frontend);
    fe->quit=0;
+   fe->timer_firing=0;
+   unsigned int timer_old_firing=0;
+   fe->timer_ticks=0;
    fe->me=midend_new(fe, &thegame, &sdl_drawing, fe);
 
-   if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) ) {
+   if( ( SDL_Init( SDL_INIT_VIDEO|SDL_INIT_TIMER ) != 0 ) ) {
       SDL_Log( "Unable to initialize SDL: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
@@ -292,7 +305,15 @@ int main( void ) {
       SDL_Event event;
       if( SDL_WaitEvent( &event ) ) {
          do {
-            
+            if (timer_old_firing != fe->timer_firing) {
+               timer_old_firing=fe->timer_firing;
+               Uint32 timer_tick_now=SDL_GetTicks();
+               Uint32 ticks_delta= timer_tick_now - fe->timer_ticks;
+               fe->timer_ticks=timer_tick_now;
+               float ticks_delta_seconds = ticks_delta / 60.0;
+               printf("Calling midend_timer\n");
+               midend_timer(fe->me,ticks_delta_seconds);
+            }
             switch( event.type ) {
                case SDL_KEYDOWN:
                case SDL_KEYUP:
@@ -322,7 +343,7 @@ int main( void ) {
             printf( "window width  = %d\n" "window height = %d\n", width, height );
       }
    }
-
+   SDL_RemoveTimer(fe->timer_handle);
    SDL_DestroyRenderer( fe->renderer );
    SDL_DestroyWindow( fe->window );
    SDL_Quit();
