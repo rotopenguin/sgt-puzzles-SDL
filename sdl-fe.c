@@ -269,6 +269,7 @@ int main( void ) {
    double y;
    frontend* fe = frontend_new();
    fe->me=midend_new(fe, &thegame, &sdl_drawing, fe);
+   SDL_Event event;
 
 
    if( ( SDL_Init( SDL_INIT_VIDEO|SDL_INIT_TIMER ) != 0 ) ) {
@@ -297,42 +298,39 @@ int main( void ) {
    midend_force_redraw(fe->me);
 
    while( ! fe->quit ) {
-
-      SDL_Event event;
-   
+   //honestly, I should be swapping framebuffers right here. sdl_draw_end should not be doing it.   
+      if (fe->timer_running) {
+         //midend_force_redraw(fe->me);
+         Uint64 new_timer_ticks=SDL_GetTicks64();
+         printf("New Ticks = %d, Old ticks = %d", new_timer_ticks, fe->old_timer_ticks);
+         Uint64 delta = new_timer_ticks - fe->old_timer_ticks;
+         fe->old_timer_ticks=new_timer_ticks;
+         midend_timer(fe->me,delta / 1000.0f);
+      }
       while( SDL_PollEvent( &event ) ) {
-            if (fe->timer_running) {
-               //midend_force_redraw(fe->me);
-               Uint64 new_timer_ticks=SDL_GetTicks64();
-               Uint64 delta = new_timer_ticks - fe->old_timer_ticks;
-               printf("Calling midend_timer\n");
-               midend_timer(fe->me,delta / 1000.0f);
-            }
-    
-            switch( event.type ) {
-               case SDL_KEYDOWN:
-               case SDL_KEYUP:
-                  nom_key_event(fe, &event);
-                  break;
-               case SDL_QUIT:
-                  fe->quit = 1;
-                  break;
+         switch( event.type ) {
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+               nom_key_event(fe, &event);
+               break;
+            case SDL_QUIT:
+               fe->quit = 1;
+               break;
 
-               case SDL_WINDOWEVENT:
-                  switch( event.window.event ) {
-                     case SDL_WINDOWEVENT_SIZE_CHANGED:
-                        width = event.window.data1;
-                        height = event.window.data2;
-                        break;
-                     case SDL_WINDOWEVENT_CLOSE:
-                        event.type = SDL_QUIT;
-                        SDL_PushEvent( &event );
-                        break;
-                  }
+            case SDL_WINDOWEVENT:
+               switch( event.window.event ) {
+                  case SDL_WINDOWEVENT_SIZE_CHANGED:
+                     width = event.window.data1;
+                     height = event.window.data2;
+                     break;
+                  case SDL_WINDOWEVENT_CLOSE:
+                     fe->quit=1;
+                     break;
+               }
 
                //SDL_FreeSurface( fe->sdl_surface ); 
                //fe->sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
-               break;
+            
             }
             //printf( "window width  = %d\n" "window height = %d\n", width, height );
       }
