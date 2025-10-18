@@ -258,6 +258,7 @@ frontend* frontend_new(){
    fe->quit=0;
    fe->old_timer_ticks=0;
    fe->timer_running=0;
+   return fe;
 }
 
 int main( void ) {
@@ -298,13 +299,14 @@ int main( void ) {
    while( ! fe->quit ) {
 
       SDL_Event event;
-      if( SDL_WaitEvent( &event ) ) {
-         do {
+   
+      while( SDL_PollEvent( &event ) ) {
             if (fe->timer_running) {
+               //midend_force_redraw(fe->me);
                Uint64 new_timer_ticks=SDL_GetTicks64();
                Uint64 delta = new_timer_ticks - fe->old_timer_ticks;
                printf("Calling midend_timer\n");
-               midend_timer(fe->me,delta / 60.0f);
+               midend_timer(fe->me,delta / 1000.0f);
             }
     
             switch( event.type ) {
@@ -332,8 +334,7 @@ int main( void ) {
                //fe->sdl_surface = SDL_CreateRGBSurface( videoFlags, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0 );
                break;
             }
-         } while( SDL_PollEvent( &event ) );
-            printf( "window width  = %d\n" "window height = %d\n", width, height );
+            //printf( "window width  = %d\n" "window height = %d\n", width, height );
       }
    }
    SDL_DestroyRenderer( fe->renderer );
