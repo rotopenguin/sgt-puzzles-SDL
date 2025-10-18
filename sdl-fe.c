@@ -298,10 +298,12 @@ int main( void ) {
       SDL_Event event;
       if( SDL_WaitEvent( &event ) ) {
          do {
-            nom_key_event(fe, &event);
+            
             switch( event.type ) {
-           
-
+               case SDL_KEYDOWN:
+               case SDL_KEYUP:
+                  nom_key_event(fe, &event);
+                  break;
                case SDL_QUIT:
                   fe->quit = 1;
                   break;
@@ -337,19 +339,20 @@ int main( void ) {
 
 void nom_key_event(frontend *fe, SDL_Event *event) {
    int keydown = 0, keyup = 0;
+   int allow_repeat=0;
+   int keyval=0;
    if (event->type ==SDL_KEYUP ) keyup = 1;
    if (event->type ==SDL_KEYDOWN ) keydown = 1;
    SDL_Keycode sym= event->key.keysym.sym;
-   int keyval=0;
    switch(sym) {
       case SDLK_UP:
-         keyval=CURSOR_UP; break;
+         keyval=CURSOR_UP; allow_repeat=1; break;
       case SDLK_DOWN:
-         keyval=CURSOR_DOWN; break;
+         keyval=CURSOR_DOWN; allow_repeat=1; break;
       case SDLK_LEFT:
-         keyval=CURSOR_LEFT; break;
+         keyval=CURSOR_LEFT; allow_repeat=1; break;
       case SDLK_RIGHT:
-         keyval=CURSOR_RIGHT; break;
+         keyval=CURSOR_RIGHT; allow_repeat=1; break;
       case SDLK_z: 
          keyval=UI_UNDO; break;
       case SDLK_r:
@@ -365,9 +368,11 @@ void nom_key_event(frontend *fe, SDL_Event *event) {
       case SDLK_ESCAPE:
          fe->quit=1; return;
    }
-   if (keydown && keyval) {
-      midend_process_key(fe->me, 0, 0, keyval);
-   }
+
+   if (keydown && keyval) 
+      if ( !event->key.repeat || (event->key.repeat && allow_repeat)  ) 
+         midend_process_key(fe->me, 0, 0, keyval);
+   
 }
 
 static const struct drawing_api sdl_drawing = {
