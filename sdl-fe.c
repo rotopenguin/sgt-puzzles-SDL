@@ -298,6 +298,7 @@ int main( void ) {
    midend_force_redraw(fe->me);
 
    while( ! fe->quit ) {
+      SDL_Delay(10);
    //honestly, I should be swapping framebuffers right here. sdl_draw_end should not be doing it.   
       if (fe->timer_running) {
          //midend_force_redraw(fe->me);
