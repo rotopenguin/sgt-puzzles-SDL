@@ -298,7 +298,7 @@ int main( void ) {
    midend_force_redraw(fe->me);
 
    while( ! fe->quit ) {
-      SDL_Delay(10);
+      SDL_Delay(10); // It would be nice to wait for framesync somewhere, but alas.
    //honestly, I should be swapping framebuffers right here. sdl_draw_end should not be doing it.   
       if (fe->timer_running) {
          //midend_force_redraw(fe->me);
@@ -362,17 +362,13 @@ void nom_key_event(frontend *fe, SDL_Event *event) {
          keyval=CURSOR_LEFT; allow_repeat=1; break;
       case SDLK_RIGHT:
          keyval=CURSOR_RIGHT; allow_repeat=1; break;
-      case SDLK_u: 
-         keyval=UI_UNDO; break;
-      case SDLK_r:
-         keyval=UI_REDO; break;
+      //case SDLK_u: 
+      //   keyval=UI_UNDO; break;
+      //case SDLK_r:
+      //   keyval=UI_REDO; break;
       case SDLK_SPACE:
-         keyval=' ' ; break;
       case SDLK_RETURN:
-         keyval='\r' ; break; 
-      case SDLK_a ... SDLK_q:
-      case SDLK_s ... SDLK_t:
-      case SDLK_v ... SDLK_z:
+      case SDLK_a ... SDLK_z:
       case SDLK_0 ... SDLK_9:
          keyval=sym; break;
       case SDLK_ESCAPE:
