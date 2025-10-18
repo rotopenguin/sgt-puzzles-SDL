@@ -11,9 +11,8 @@ cairo_t *cr;
 cairo_surface_t *image;
 int bbox_l, bbox_r, bbox_u, bbox_d;
 int quit;
-SDL_TimerID timer_handle;
-Uint32 timer_ticks;
-unsigned int timer_firing;
+Uint64 old_timer_ticks;
+int timer_running;
 };
 typedef frontend frontend;
 static const struct drawing_api sdl_drawing;
@@ -51,4 +50,4 @@ struct blitter {
     int w, h;
 };
 
-Uint32 timerfunc(Uint32, void*);
+frontend* frontend_new();
