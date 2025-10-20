@@ -13,6 +13,7 @@ int bbox_l, bbox_r, bbox_u, bbox_d;
 int quit;
 Uint64 old_timer_ticks;
 int timer_running;
+float fontscale;
 };
 typedef frontend frontend;
 static const struct drawing_api sdl_drawing;

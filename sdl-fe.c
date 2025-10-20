@@ -40,13 +40,13 @@ void frontend_default_colour(frontend *fe, float *output) {
 void activate_timer(frontend *fe) { // SDL_AddTimer is a threaded abomination. Not what we want.
    fe->old_timer_ticks=SDL_GetTicks64();
    fe->timer_running=1;
-   printf("activating timer.\n");
+//   printf("activating timer.\n");
 }
 
 void deactivate_timer(frontend *fe) {
    fe->timer_running=0;
    fe->old_timer_ticks=0;
-   printf("deactivating timer.\n");
+//   printf("deactivating timer.\n");
 }
 
 static void draw_fill(frontend *fe) {
@@ -73,6 +73,7 @@ void sdl_draw_text(drawing *dr, int x, int y, int fonttype, int fontsize, int al
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
    cairo_text_extents_t extents;
    int origx=x, origy=y;
+   fontsize=fontsize*fe->fontscale;
    draw_set_colour(fe,colour);
    cairo_set_font_size(fe->cr, fontsize);
    cairo_text_extents(fe->cr, text, &extents); 
@@ -201,7 +202,7 @@ void sdl_draw_update(drawing *dr, int x, int y, int w, int h) {
 
 void sdl_end_draw(drawing *dr) {
    frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
-   printf("end_draw, I should probably poke SDL to render or something\n");
+   //printf("end_draw, I should probably poke SDL to render or something\n");
    //I Guess I have to make a repaint happen here? 
    SDL_Texture * texture = SDL_CreateTextureFromSurface( fe->renderer, fe->sdl_surface );
    SDL_RenderCopy( fe->renderer, texture, NULL, NULL ) ;
@@ -258,6 +259,7 @@ frontend* frontend_new(){
    fe->quit=0;
    fe->old_timer_ticks=0;
    fe->timer_running=0;
+   fe->fontscale=1.5;
    return fe;
 }
 

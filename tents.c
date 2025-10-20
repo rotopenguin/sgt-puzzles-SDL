@@ -291,7 +291,8 @@ static game_params *default_params(void)
 {
     game_params *ret = snew(game_params);
 
-    ret->w = ret->h = 10;  //TODO: Turn back to 8/easy. I want harder for now tho.
+    ret->w = 19;
+    ret->h = 12;  //TODO: Turn back to 8/easy. I want harder for now tho.
     ret->diff = DIFF_TRICKY;
 
     return ret;
