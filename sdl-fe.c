@@ -362,13 +362,38 @@ int main( void ) {
 void nom_key_event(frontend *fe, SDL_Event *event) {
    //Key repeat works in a compositor, but when you're just using the bare console, nope. 
    //The general solution is "do your own repeat logic".
+   //SDL_Keymod keymod = SDL_GetModState();
    int keydown = 0, keyup = 0;
    int allow_repeat=0;
    int keyval=0;
-   if (event->type ==SDL_KEYUP ) keyup = 1;
-   if (event->type ==SDL_KEYDOWN ) keydown = 1;
+   static int  needs_debounce = 0;
    SDL_Keycode sym= event->key.keysym.sym;
-   switch(sym) {
+   const Uint8* keyarray = SDL_GetKeyboardState(NULL);
+   if (event->key.repeat) return; //key repeat is more trouble than its worth rn.
+
+   if (needs_debounce) { //logic for inertia
+      if (keyarray[SDL_SCANCODE_LEFT] || keyarray[SDL_SCANCODE_RIGHT] || keyarray[SDL_SCANCODE_UP] || keyarray[SDL_SCANCODE_DOWN]) {
+         return;
+      } else {
+         needs_debounce=0 ;
+      }
+   }
+
+      if (event->type ==SDL_KEYUP )  {
+      keyup = 1; return;  //eh, we aren't using keyups anyways.
+   } else if (event->type ==SDL_KEYDOWN ) keydown = 1;   
+
+   if (keyarray[SDL_SCANCODE_RCTRL]) { // Special key handling for Inertia. If Rctl is held, we only want to pass diagonals.
+      if (keyarray[SDL_SCANCODE_LEFT] && keyarray[SDL_SCANCODE_UP]) {
+         keyval=MOD_NUM_KEYPAD | '7'; needs_debounce = 1;
+      } else if (keyarray[SDL_SCANCODE_LEFT] && keyarray[SDL_SCANCODE_DOWN]) {
+         keyval=MOD_NUM_KEYPAD | '1'; needs_debounce = 1;
+      } else if (keyarray[SDL_SCANCODE_RIGHT] && keyarray[SDL_SCANCODE_UP]) {
+         keyval=MOD_NUM_KEYPAD | '9'; needs_debounce = 1;
+      } else if  (keyarray[SDL_SCANCODE_RIGHT] && keyarray[SDL_SCANCODE_DOWN]) {
+         keyval=MOD_NUM_KEYPAD | '3'; needs_debounce = 1;
+      }
+   } else switch(sym) { // Normal key handling
       case SDLK_UP:
          keyval=CURSOR_UP; allow_repeat=1; break;
       case SDLK_DOWN:
