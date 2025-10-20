@@ -282,8 +282,10 @@ int main( void ) {
    int videoFlags = SDL_WINDOW_FULLSCREEN;
    double x;
    double y;
+   char *game_id;
    frontend* fe = frontend_new();
    fe->me=midend_new(fe, &thegame, &sdl_drawing, fe);
+   
    SDL_Event event;
 
 
@@ -309,6 +311,11 @@ int main( void ) {
 
    midend_new_game(fe->me);
    midend_size(fe->me, &width, &height, 1, 1.0);
+   game_id = midend_get_game_id(fe->me);
+   if (game_id) {
+      printf("The GameID for game '%s' is: %s\n",thegame.name, game_id); 
+      sfree(game_id);
+   } else printf("Wherefore is gameid null?\n");
    snaffle_colours(fe);
    midend_force_redraw(fe->me);
 
