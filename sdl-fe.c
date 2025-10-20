@@ -289,7 +289,7 @@ int main( void ) {
    SDL_Event event;
 
 
-   if( ( SDL_Init( SDL_INIT_VIDEO|SDL_INIT_TIMER ) != 0 ) ) {
+   if( ( SDL_Init( SDL_INIT_VIDEO ) != 0 ) ) {
       SDL_Log( "Unable to initialize SDL: %s.\n", SDL_GetError() );
       exit( EXIT_FAILURE );
    }
@@ -313,7 +313,8 @@ int main( void ) {
    midend_size(fe->me, &width, &height, 1, 1.0);
    game_id = midend_get_game_id(fe->me);
    if (game_id) {
-      printf("The GameID for game '%s' is: %s\n",thegame.name, game_id); 
+      printf("The GameID for game '%s' is: %s\n",thegame.name, game_id);  
+      fflush(stdout);
       sfree(game_id);
    } else printf("Wherefore is gameid null?\n");
    snaffle_colours(fe);
