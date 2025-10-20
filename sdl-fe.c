@@ -248,7 +248,20 @@ void sdl_blitter_load(drawing *dr, blitter *bl, int x, int y) {
 }
 
 void sdl_status_bar(drawing *dr, const char *text) {
-   printf("status bar isn't '%s'\n",text);
+   frontend *fe = GET_HANDLE_AS_TYPE(dr, frontend);
+   cairo_save(fe->cr);
+   cairo_set_source_rgb(fe->cr, 0.0, 0.0, 0.0);
+   cairo_rectangle(fe->cr, 700, 0 , 20, 480);
+   cairo_fill(fe->cr);
+
+   cairo_set_source_rgb(fe->cr, 1.0, 1.0, 1.0);
+   cairo_set_font_size(fe->cr, 16);
+   cairo_move_to(fe->cr, 716, 470);
+   cairo_rotate(fe->cr,PI * 1.5);
+   
+   cairo_show_text(fe->cr, text);
+   cairo_restore(fe->cr);
+   //printf("status bar isn't '%s'\n",text);
 }
 
 void document_add_puzzle(document *doc, const game *game, game_params *par,
@@ -305,7 +318,7 @@ int main( void ) {
       if (fe->timer_running) {
          //midend_force_redraw(fe->me);
          Uint64 new_timer_ticks=SDL_GetTicks64();
-         printf("New Ticks = %d, Old ticks = %d", new_timer_ticks, fe->old_timer_ticks);
+         //printf("New Ticks = %d, Old ticks = %d", new_timer_ticks, fe->old_timer_ticks);
          Uint64 delta = new_timer_ticks - fe->old_timer_ticks;
          fe->old_timer_ticks=new_timer_ticks;
          midend_timer(fe->me,delta / 1000.0f);

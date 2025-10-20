@@ -26,6 +26,7 @@
 
 enum {
     COL_BACKGROUND,
+    COL_GRID,
     NCOLOURS
 };
 
@@ -165,6 +166,10 @@ static float *game_colours(frontend *fe, int *ncolours)
 
     frontend_default_colour(fe, &ret[COL_BACKGROUND * 3]);
 
+    ret[COL_GRID * 3 + 0] = 0.0F;
+    ret[COL_GRID * 3 + 1] = 0.0F;
+    ret[COL_GRID * 3 + 2] = 0.0F;
+
     *ncolours = NCOLOURS;
     return ret;
 }
@@ -221,7 +226,7 @@ static int game_status(const game_state *state)
 #endif
 
 const struct game thegame = {
-    "Null Game", NULL, NULL,
+    "Launcher", NULL, NULL,
     default_params,
     game_fetch_preset, NULL,
     decode_params,
