@@ -371,15 +371,15 @@ void nom_key_event(frontend *fe, SDL_Event *event) {
    const Uint8* keyarray = SDL_GetKeyboardState(NULL);
    if (event->key.repeat) return; //key repeat is more trouble than its worth rn.
 
-   if (needs_debounce) { //logic for inertia
+   if (needs_debounce) { //logic for inertia. TBH, I would have preferred to handle this in inertia.c, but I don't think the midend_process_key interface is up to it.
       if (keyarray[SDL_SCANCODE_LEFT] || keyarray[SDL_SCANCODE_RIGHT] || keyarray[SDL_SCANCODE_UP] || keyarray[SDL_SCANCODE_DOWN]) {
-         return;
+         return; // A diagonal input was proccessed. Now I want the cursor keys to come to a neutral state before I accept any new input.
       } else {
          needs_debounce=0 ;
       }
    }
 
-      if (event->type ==SDL_KEYUP )  {
+   if (event->type ==SDL_KEYUP )  {
       keyup = 1; return;  //eh, we aren't using keyups anyways.
    } else if (event->type ==SDL_KEYDOWN ) keydown = 1;   
 
