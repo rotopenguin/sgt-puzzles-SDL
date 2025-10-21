@@ -52,3 +52,10 @@ struct blitter {
 };
 
 frontend* frontend_new();
+void save_game_to_disk(frontend*); 
+int load_game_from_disk(frontend*); // true if load succeeded, false otherwise.
+
+struct savefile_write_ctx {
+    FILE *fp;
+    int error;
+};

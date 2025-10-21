@@ -312,11 +312,9 @@ int main( void ) {
    midend_new_game(fe->me);
    midend_size(fe->me, &width, &height, 1, 1.0);
    game_id = midend_get_game_id(fe->me);
-   if (game_id) {
-      printf("The GameID for game '%s' is: %s\n",thegame.name, game_id);  
-      fflush(stdout);
-      sfree(game_id);
-   } else printf("Wherefore is gameid null?\n");
+   printf("The GameID for game '%s' is: %s\n",thegame.name, game_id);  
+   fflush(stdout);
+   sfree(game_id);
    snaffle_colours(fe);
    midend_force_redraw(fe->me);
 
@@ -359,6 +357,8 @@ int main( void ) {
             //printf( "window width  = %d\n" "window height = %d\n", width, height );
       }
    }
+
+   save_game_to_disk(fe);
    SDL_DestroyRenderer( fe->renderer );
    SDL_DestroyWindow( fe->window );
    SDL_Quit();
@@ -366,6 +366,10 @@ int main( void ) {
    sfree(fe);
    return 0;
 }
+
+void save_game_to_disk(frontend *fe){} // if we are in a completed state midend_status(), just delete the file and don't save. 
+
+int load_game_from_disk(frontend *fe){return 0;}
 
 void nom_key_event(frontend *fe, SDL_Event *event) {
    //Key repeat works in a compositor, but when you're just using the bare console, nope. 
@@ -424,6 +428,14 @@ void nom_key_event(frontend *fe, SDL_Event *event) {
          keyval=sym; break;
       case SDLK_ESCAPE:
          fe->quit=1; return;
+      case SDLK_F10:
+         midend_new_game(fe->me);
+         midend_redraw(fe->me);
+         char *game_id = midend_get_game_id(fe->me);
+         printf("The GameID for game '%s' is: %s\n",thegame.name, game_id);  
+         fflush(stdout);
+         sfree(game_id);
+         return;
    }
 
    if (keydown && keyval) 
